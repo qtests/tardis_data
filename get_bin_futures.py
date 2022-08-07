@@ -21,9 +21,6 @@ import datetime as dt
 import subprocess as sp
 
 
-
-print(f"\n\n{dt.date.today()}--------- Starting to download ---------")
-
 # Init
 #
 all_years = [2021, 2022]
@@ -34,10 +31,14 @@ all_symbols = [ "BTCUSDT", "ETHUSDT", "ATOMUSDT", "DOTUSDT", "SOLUSDT", "ADAUSDT
 Tardis.logger().setLevel(logging.INFO)
 cache_dir = Tardis().cache_dir
 
+run_data_download = False
+
 zorro_csv_dir = Path(os.path.join(cache_dir)).parent.joinpath("zorro")
 zorro_t6_dir = Path(os.path.join(cache_dir)).parent.joinpath("zorro_t6")
 zorro_exe = r'C:\co\zorro\Zorro2444\Zorro.exe'
+zorro_script = 'CSVtoT6TardisData'
 zorro_stay = False
+
 
 if not os.path.exists(zorro_csv_dir):
     os.makedirs(zorro_csv_dir)
@@ -92,19 +93,22 @@ async def download_year (symbol, dyear = 2021, dmonths = 7, exchange = "binance-
     await asyncio.gather(task)
 
 
+print(f'\n\n{dt.datetime.now()}--------- Starting ---------\n')
+
 for year in all_years:
 
     # Data download
-    for symb in all_symbols:
-        asyncio.run(download_year(symbol=symb, dyear=year, dmonths=months_in_year(year)))
-    
+    if run_data_download:
+        for symb in all_symbols:
+            asyncio.run(download_year(symbol=symb, dyear=year, dmonths=months_in_year(year)))
+        
     # New content
     new_content = Tardis().stored_content()
     new_df = pd.DataFrame(new_content)
     for idx, arow in new_df[['meta_file', 'symbols']].iterrows():
         r_meta_file, r_symbols = arow[0], arow[1]
 
-        print ( "Converting to Zorro: ", r_symbols[0], " ", r_meta_file )
+        print ( "Converting -> Zorro CSV: ", r_symbols[0], " ", year, " ", r_meta_file )
         
         start_date = f'{year}-01-01T00:00:00.000Z'
         end_date = f'{year}-12-31T23:59:59.999999Z'
@@ -117,11 +121,12 @@ for year in all_years:
 # Run zorro:
 # Zorro.exe -run CSVtoT6TardisData -u dir=C:\temp1 -u out=C:\temp2
 
-if zorro_stay:
-    sp.run(f'{zorro_exe} -stay -run CSVtoT6TardisData -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
+print ("\nConverting CSV -> t6")
 
+if zorro_stay:
+    sp.run(f'{zorro_exe} -stay -run {zorro_script} -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
 else:
-    sp.run(f'{zorro_exe} -run CSVtoT6TardisData -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
+    sp.run(f'{zorro_exe} -run {zorro_script} -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
 
 print ("\nFinito!")
 
