@@ -19,7 +19,7 @@ from calendar import monthrange, isleap
 import datetime as dt
 
 
-print(f"{dt.date.today()}--------- Starting Download ---------")
+print(f"\n\n{dt.date.today()}--------- Starting to download ---------")
 
 # Init
 #
@@ -65,7 +65,7 @@ def months_in_year(year):
         return (None)
 
 
-async def download_year (symbols, dyear = 2021, dmonths = 7, exchange = "binance-futures", dataType = "trade_bar_1m"):
+async def download_year (symbol, dyear = 2021, dmonths = 7, exchange = "binance-futures", dataType = "trade_bar_1m"):
 
     if dyear is None or dmonths is None:
         return
@@ -77,34 +77,32 @@ async def download_year (symbols, dyear = 2021, dmonths = 7, exchange = "binance
     else:
         num_days = days_in_months(dyear, dmonths)
 
-    task = download_task(exchange, symbols, dataType, start_date, num_days)
+    task = download_task(exchange, symbol, dataType, start_date, num_days)
     # task = [download_task(exchange, s, dataType, start_date, num_days) for s in symbols]
     await asyncio.gather(task)
 
 
 for year in all_years:
 
-    # Old content
-    content = Tardis().stored_content()
-    df = pd.DataFrame(content)
-
-    # Data download
-    for symb in all_symbols:
-        asyncio.run(download_year(symbols=symb, dyear=year, dmonths=months_in_year(year)))
+    # # Data download
+    # for symb in all_symbols:
+    #     asyncio.run(download_year(symbol=symb, dyear=year, dmonths=months_in_year(year)))
     
     # New content
     new_content = Tardis().stored_content()
     new_df = pd.DataFrame(new_content)
     for idx, arow in new_df[['meta_file', 'symbols']].iterrows():
         r_meta_file, r_symbols = arow[0], arow[1]
-        if df.empty or (not r_meta_file in df['meta_file'].to_list()):
-            print ( "Converting to Zorro: ", r_symbols[0], " ", r_meta_file )
-            df_tmp = Tardis().load(meta_file=r_meta_file)
-            df_zorro = to_zorro_t6_compatible_csv(df_tmp)
-            df_zorro.to_csv(os.path.join(zorro_dir, f'binance_futures_{r_symbols[0]}_{year}.csv'), index=False)
-        else:
-            print ( "Skipping: ", r_symbols[0], " ", r_meta_file )
 
+        print ( "Converting to Zorro: ", r_symbols[0], " ", r_meta_file )
+        
+        start_date = f'{year}-01-01T00:00:00.000Z'
+        end_date = f'{year}-12-31T23:59:59.999999Z'
+        df_tmp = Tardis().load(a=start_date, b=end_date, meta_file=r_meta_file)
+        
+        df_zorro = to_zorro_t6_compatible_csv(df_tmp)
+        df_zorro.to_csv(os.path.join(zorro_dir, f'binance_futures_{r_symbols[0]}_{year}.csv'), index=False)
+        
 # Postprocess
 print ("\nFinito!")
 
