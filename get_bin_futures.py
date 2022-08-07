@@ -104,24 +104,26 @@ for year in all_years:
         
     # New content
     new_content = Tardis().stored_content()
-    new_df = pd.DataFrame(new_content)
-    for idx, arow in new_df[['meta_file', 'symbols']].iterrows():
-        r_meta_file, r_symbols = arow[0], arow[1]
 
-        print ( "Converting -> Zorro CSV: ", r_symbols[0], " ", year, " ", r_meta_file )
-        
-        start_date = f'{year}-01-01T00:00:00.000Z'
-        end_date = f'{year}-12-31T23:59:59.999999Z'
-        df_tmp = Tardis().load(a=start_date, b=end_date, meta_file=r_meta_file)
-        
-        df_zorro = to_zorro_t6_compatible_csv(df_tmp)
-        df_zorro.to_csv(os.path.join(zorro_csv_dir, f'binance_futures_{r_symbols[0]}_{year}.csv'), index=False)
+    if len(new_content) > 0:
+        new_df = pd.DataFrame(new_content)
+        for idx, arow in new_df[['meta_file', 'symbols']].iterrows():
+            r_meta_file, r_symbols = arow[0], arow[1]
+    
+            print ( "Converting -> Zorro CSV: ", r_symbols[0], " ", year, " ", r_meta_file )
+            
+            start_date = f'{year}-01-01T00:00:00.000Z'
+            end_date = f'{year}-12-31T23:59:59.999999Z'
+            df_tmp = Tardis().load(a=start_date, b=end_date, meta_file=r_meta_file)
+            
+            df_zorro = to_zorro_t6_compatible_csv(df_tmp)
+            df_zorro.to_csv(os.path.join(zorro_csv_dir, f'binance_futures_{r_symbols[0]}_{year}.csv'), index=False)
 
 
 # Run zorro:
 # Zorro.exe -run CSVtoT6TardisData -u dir=C:\temp1 -u out=C:\temp2
 
-print ("\nConverting CSV -> t6")
+print ("\nConverting Zorro CSV -> t6")
 
 if zorro_stay:
     sp.run(f'{zorro_exe} -stay -run {zorro_script} -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
