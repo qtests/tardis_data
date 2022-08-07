@@ -18,22 +18,32 @@ from market.tardis import to_zorro_t6_compatible_csv
 from calendar import monthrange, isleap
 import datetime as dt
 
+import subprocess as sp
+
+
 
 print(f"\n\n{dt.date.today()}--------- Starting to download ---------")
 
 # Init
 #
-all_years = [2022]
+all_years = []
 all_symbols = [ "BTCUSDT", "ETHUSDT", "ATOMUSDT", "DOTUSDT", "SOLUSDT", "ADAUSDT", 
                     "EOSUSDT", "BNBUSDT", "XMRUSDT", "DOGEUSDT", "GRTUSDT", "MKRUSDT", "AAVEUSDT"]
 
 
 Tardis.logger().setLevel(logging.INFO)
 cache_dir = Tardis().cache_dir
-zorro_dir = Path(os.path.join(cache_dir)).parent.joinpath("zorro")
 
-if not os.path.exists(zorro_dir):
-    os.makedirs(zorro_dir)
+zorro_csv_dir = Path(os.path.join(cache_dir)).parent.joinpath("zorro")
+zorro_t6_dir = Path(os.path.join(cache_dir)).parent.joinpath("zorro_t6")
+zorro_exe = r'C:\co\zorro\Zorro2444\Zorro.exe'
+zorro_stay = False
+
+if not os.path.exists(zorro_csv_dir):
+    os.makedirs(zorro_csv_dir)
+
+if not os.path.exists(zorro_t6_dir):
+    os.makedirs(zorro_t6_dir)
 
 # binance = instrument_info("binance-futures")
 # b_instruments = pd.DataFrame([
@@ -101,9 +111,18 @@ for year in all_years:
         df_tmp = Tardis().load(a=start_date, b=end_date, meta_file=r_meta_file)
         
         df_zorro = to_zorro_t6_compatible_csv(df_tmp)
-        df_zorro.to_csv(os.path.join(zorro_dir, f'binance_futures_{r_symbols[0]}_{year}.csv'), index=False)
-        
-# Postprocess
+        df_zorro.to_csv(os.path.join(zorro_csv_dir, f'binance_futures_{r_symbols[0]}_{year}.csv'), index=False)
+
+
+# Run zorro:
+# Zorro.exe -run CSVtoT6TardisData -u dir=C:\temp1 -u out=C:\temp2
+
+if zorro_stay:
+    sp.run(f'{zorro_exe} -stay -run CSVtoT6TardisData -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
+
+else:
+    sp.run(f'{zorro_exe} -run CSVtoT6TardisData -u dir={zorro_csv_dir} -u out={zorro_t6_dir}')
+
 print ("\nFinito!")
 
 
