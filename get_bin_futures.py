@@ -26,7 +26,7 @@ print(f"\n\n{dt.date.today()}--------- Starting to download ---------")
 
 # Init
 #
-all_years = []
+all_years = [2021, 2022]
 all_symbols = [ "BTCUSDT", "ETHUSDT", "ATOMUSDT", "DOTUSDT", "SOLUSDT", "ADAUSDT", 
                     "EOSUSDT", "BNBUSDT", "XMRUSDT", "DOGEUSDT", "GRTUSDT", "MKRUSDT", "AAVEUSDT"]
 
@@ -94,9 +94,9 @@ async def download_year (symbol, dyear = 2021, dmonths = 7, exchange = "binance-
 
 for year in all_years:
 
-    # # Data download
-    # for symb in all_symbols:
-    #     asyncio.run(download_year(symbol=symb, dyear=year, dmonths=months_in_year(year)))
+    # Data download
+    for symb in all_symbols:
+        asyncio.run(download_year(symbol=symb, dyear=year, dmonths=months_in_year(year)))
     
     # New content
     new_content = Tardis().stored_content()
