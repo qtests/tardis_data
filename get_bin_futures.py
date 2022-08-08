@@ -11,8 +11,7 @@ import pandas as pd
 import logging
 from pathlib import Path
 
-from market.tardis import Tardis
-from market.tardis import to_zorro_t6_compatible_csv
+from market.tardis import Tardis, to_zorro_t6_compatible_csv, instrument_info
 
 from TData_lib import download_year, months_in_year, rename_files, make_new_name
 
@@ -50,6 +49,7 @@ if not os.path.exists(zorro_csv_dir):
 
 if not os.path.exists(zorro_t6_dir):
     os.makedirs(zorro_t6_dir)
+
 
 # binance = instrument_info("binance-futures")
 # b_instruments = pd.DataFrame([
