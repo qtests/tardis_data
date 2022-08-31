@@ -21,11 +21,11 @@ import subprocess as sp
 
 # Init
 #
-all_years = [2021, 2022]
-all_symbols = [ "ENJUSDT", "IOTAUSDT", "XTZUSDT"
-
-                # "BTCUSDT", "ETHUSDT", "ATOMUSDT", "DOTUSDT", "SOLUSDT", "ADAUSDT", 
-                #  "EOSUSDT", "BNBUSDT", "XMRUSDT", "DOGEUSDT", "GRTUSDT", "MKRUSDT", "AAVEUSDT"
+all_years = [2020, 2021, 2022]
+all_symbols = [ 
+                "BTCUSDT", "ETHUSDT", "ATOMUSDT", "DOTUSDT", "SOLUSDT", "ADAUSDT", 
+                "EOSUSDT", "BNBUSDT", "XMRUSDT", "DOGEUSDT", "GRTUSDT", "MKRUSDT", 
+                "AAVEUSDT", "ENJUSDT", "IOTAUSDT", "XTZUSDT"
                 ]
 
 

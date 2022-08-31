@@ -1,5 +1,6 @@
 import sys; 
 sys.path.extend(['../crypto_trading'])
+import pandas as pd
 
 import os
 import asyncio
@@ -53,8 +54,12 @@ async def download_year (symbol, dyear = 2021, dmonths = 7, exchange = "binance-
 
 
 def make_new_name(old_name):
-    _, _, ticker, year, _ = old_name.split("_")
-    return (("_").join([ticker, year]))
+    try:
+        _, _, ticker, year, _ = old_name.split("_")
+        return (("_").join([ticker, year]))
+    except:
+        print (f'\nThere were problems in renaming the file "{old_name}" !')
+        return (old_name)
 
 
 def rename_files(folder, f_new_name):
@@ -65,4 +70,22 @@ def rename_files(folder, f_new_name):
     
         new_name = f'{f_name}{f_ext}'
         os.rename(Path(folder).joinpath(f), Path(folder).joinpath(new_name))
+
+
+def to_zorro_t6_compatible_csv(df: pd.DataFrame) -> pd.DataFrame:
+    date = [int(d) for d in df.index.strftime("%Y%m%d").values]
+    time = df.index.strftime("%H:%M:%S")
+    df.columns = list(map(lambda x: x.lower(),  list(df.columns)))
+    res = pd.DataFrame({"Date": date, "Time": time, "Open": df.open, "High": df.high, "Low": df.low, "Close": df.close, "Volume": df.volume})
+    return res.reset_index(drop=True)
+
+
+def extended_in(el_set, target):
+    res = False
+    for el in el_set:
+        if el in target:
+            res = True
+            break
+    return (res)
+
 
